@@ -1,8 +1,8 @@
 javascript:(function() {
     /*
-      Get all the image tags within the specified div
+      Get all the image tags within the specified div structure
     */
-    var images = document.querySelectorAll('div.row.main-gallery img');
+    var images = document.querySelectorAll('div.row.main-gallery div div img');
     
     /*
       Create an array to store image sources
@@ -14,38 +14,50 @@ javascript:(function() {
     */
     for (var i = 0; i < images.length; i++) {
       /*
-        Replace old image size with "/5000x5000/"
+        Replace "/numberXnumber/" with "/5000x5000"
       */
       var newSrc = images[i].src.replace(/\/\d+x\d+\//, '/5000x5000/');
       imageSources.push(newSrc);
     }
     
     /*
-      Function to trigger download for all images using XMLHttpRequest
+      Function to trigger download for all images using XMLHttpRequest with a delay
     */
     function downloadAllImages() {
-      imageSources.forEach(function(src, index) {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', src, true);
-        xhr.responseType = 'blob';
+      var index = 0;
   
-        xhr.onload = function() {
-          var a = document.createElement('a');
-          var blob = new Blob([xhr.response], { type: 'image/jpeg' });
-          a.href = URL.createObjectURL(blob);
-          a.download = 'image_' + index + '.jpg'; /* The names of the files "image_X" */
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        };
+      function downloadNextImage() {
+        if (index < imageSources.length) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', imageSources[index], true);
+          xhr.responseType = 'blob';
   
-        xhr.send();
-      });
+          xhr.onload = function() {
+            var a = document.createElement('a');
+            var blob = new Blob([xhr.response], { type: 'image/jpeg' });
+            a.href = URL.createObjectURL(blob);
+            a.download = 'image_' + index + '.jpg'; /* You can customize the filename if needed */
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+  
+            index++;
+            setTimeout(downloadNextImage, 200); /* Adjust the delay in milliseconds (e.g., 500 for 0.5 seconds) */
+          };
+  
+          xhr.send();
+        }
+      }
+  
+      /*
+        Trigger the download function
+      */
+      downloadNextImage();
     }
   
     /*
-      Trigger the download function
+      Trigger the download function immediately
     */
     downloadAllImages();
   })();
