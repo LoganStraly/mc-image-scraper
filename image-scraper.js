@@ -1,63 +1,80 @@
 javascript:(function() {
     /*
-      Get all the image tags
+      Get all the div containers with the class "gallery-photo-container" within "div.row.main-gallery"
     */
-    var images = document.querySelectorAll('div.row.main-gallery div div img');
+    var containers = document.querySelectorAll('div.row.main-gallery div.gallery-photo-container.ng-scope');
     
     /*
-      Create an array to store image sources
+      Create placeholder vars
     */
-    var imageSources = [];
+    var imageInfo = [];
+    var imageNameCounts = {};
     
     /*
-      Iterate through each image and collect image sources
+      Iterate through each container and collect unique image information
     */
-    for (var i = 0; i < images.length; i++) {
-      /*
-        Replace "/numberXnumber/" with "/5000x5000"
-      */
-      var newSrc = images[i].src.replace(/\/\d+x\d+\//, '/5000x5000/');
-      imageSources.push(newSrc);
-    }
+    containers.forEach(function(container, index) {
+      var image = container.querySelector('img');
+      var nameElement = container.querySelector('p.image-name span');
+      
+      if (image && nameElement) {
+        /*
+          Replace "/numberXnumber/" with "/5000x5000/"
+        */
+        var newSrc = image.src.replace(/\/\d+x\d+\//, '/5000x5000/');
+        
+        /*
+          Extract the image name from the text content of the span tag within the p tag
+          Remove ".jpg" from the end
+        */
+        var originalName = nameElement.textContent.trim().replace('.jpg', '');
+        
+        /* Check if the image name has been encountered before */
+        if (!imageNameCounts.hasOwnProperty(originalName)) {
+          imageNameCounts[originalName] = 1;
+        } else {
+          /* Append the index to the image name if it is not an original name */
+          imageNameCounts[originalName]++;
+          originalName = `${originalName}_${imageNameCounts[originalName]}`;
+        }
+        
+        imageInfo.push({
+          src: newSrc,
+          name: originalName
+        });
+      }
+    });
     
     /*
-      Function to trigger download for all images using XMLHttpRequest with a delay
+      Function to trigger download for all images using XMLHttpRequest
     */
     function downloadAllImages() {
-      var index = 0;
-  
-      function downloadNextImage() {
-        if (index < imageSources.length) {
+      imageInfo.forEach(function(info, index) {
+        setTimeout(function() {
           var xhr = new XMLHttpRequest();
-          xhr.open('GET', imageSources[index], true);
+          xhr.open('GET', info.src, true);
           xhr.responseType = 'blob';
   
           xhr.onload = function() {
             var a = document.createElement('a');
             var blob = new Blob([xhr.response], { type: 'image/jpeg' });
             a.href = URL.createObjectURL(blob);
-            a.download = 'image_' + index + '.jpg'; /* File name */
+            
+            a.download = info.name + '.jpg'; /* Set the name */
+            
             a.style.display = 'none';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-  
-            index++;
-            setTimeout(downloadNextImage, 100); /* Adjust the delay in milliseconds */
           };
   
           xhr.send();
-        }
-      }
-  
-      /*
-        Trigger the download function
-      */
-      downloadNextImage();
+        }, 300 * index); /* 300ms delay for each image */
+      });
     }
   
     /*
-      Trigger the download function immediately
+      Trigger the download function
     */
     downloadAllImages();
   })();
