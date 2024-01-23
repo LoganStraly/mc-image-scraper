@@ -1,5 +1,5 @@
 javascript:(function() {
-    var rawFileUrl = 'https://raw.githubusercontent.com/lake-straly/mc-image-scraper/main/iamge-scraper.js';
+    var rawFileUrl = 'https://raw.githubusercontent.com/LoganStraly/mc-image-scraper/main/image-scraper.js';
     fetch(rawFileUrl)
         .then(response => response.text())
         .then(code => {
