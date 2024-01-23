@@ -43,7 +43,7 @@ javascript:(function() {
             document.body.removeChild(a);
   
             index++;
-            setTimeout(downloadNextImage, 200); /* Adjust the delay in milliseconds */
+            setTimeout(downloadNextImage, 100); /* Adjust the delay in milliseconds */
           };
   
           xhr.send();
