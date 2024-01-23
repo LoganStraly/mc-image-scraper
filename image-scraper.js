@@ -1,6 +1,6 @@
 javascript:(function() {
     /*
-      Get all the image tags within the specified div structure
+      Get all the image tags
     */
     var images = document.querySelectorAll('div.row.main-gallery div div img');
     
@@ -36,7 +36,7 @@ javascript:(function() {
             var a = document.createElement('a');
             var blob = new Blob([xhr.response], { type: 'image/jpeg' });
             a.href = URL.createObjectURL(blob);
-            a.download = 'image_' + index + '.jpg'; /* You can customize the filename if needed */
+            a.download = 'image_' + index + '.jpg'; /* File name */
             a.style.display = 'none';
             document.body.appendChild(a);
             a.click();
